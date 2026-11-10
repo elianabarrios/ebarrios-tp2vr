@@ -1,0 +1,23 @@
+# Archivos generados por Unity
+/ebarrios-tp2vr/[Ll]ibrary/
+/ebarrios-tp2vr/[Tt]emp/
+/ebarrios-tp2vr/[Oo]bj/
+/ebarrios-tp2vr/[Ll]ogs/
+/ebarrios-tp2vr/[Uu]ser[Ss]ettings/
+/ebarrios-tp2vr/[Bb]uild/
+/ebarrios-tp2vr/[Bb]uilds/
+/ebarrios-tp2vr/[Mm]emoryCaptures/
+/ebarrios-tp2vr/[Rr]ecordings/
+
+# Archivos locales del editor e IDE
+/ebarrios-tp2vr/.vs/
+/ebarrios-tp2vr/.idea/
+/ebarrios-tp2vr/.vsconfig
+/ebarrios-tp2vr/*.csproj
+/ebarrios-tp2vr/*.sln
+/ebarrios-tp2vr/*.slnx
+/ebarrios-tp2vr/*.user
+/ebarrios-tp2vr/*.userprefs
+/ebarrios-tp2vr/*.pidb
+/ebarrios-tp2vr/*.booproj
+/ebarrios-tp2vr/sysinfo.txt
