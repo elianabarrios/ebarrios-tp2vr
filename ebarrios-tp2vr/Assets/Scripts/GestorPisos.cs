@@ -19,5 +19,10 @@ public class GestorPisos : MonoBehaviour
             return;
         //Habilitar el segundo piso una vez que esté el primero
         socketSuperior.socketActive = socketInferior.hasSelection;
+
+        // oCULTAR los sockets 
+        socketInferior.showInteractableHoverMeshes = !socketInferior.hasSelection;
+        socketSuperior.showInteractableHoverMeshes = socketInferior.hasSelection && !socketSuperior.hasSelection;
+
     }
 }
