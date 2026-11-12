@@ -12,16 +12,24 @@ public class GestorCoberturas : MonoBehaviour
     [Header("Recipientes")]
     [SerializeField] private XRGrabInteractable coberturaFrutilla;
     [SerializeField] private XRGrabInteractable coberturaNaranja;
+    [SerializeField] private XRGrabInteractable coberturaCrema;
+
 
     [Header("Materiales")]
     [SerializeField] private Material materialFrutilla;
     [SerializeField] private Material materialNaranja;
+    [SerializeField] private Material materialCrema;
+
 
     public string CoberturaActual { get; private set; } = "Ninguna";
 
     private Material materialActual;
     private Vector3 posicionFrutilla, posicionNaranja;
     private Quaternion rotacionFrutilla, rotacionNaranja;
+    private Vector3 posicionCrema;
+    private Quaternion rotacionCrema;
+    private bool cremaUsada;
+
     private bool frutillaUsada, naranjaUsada;
 
     private void Awake()
@@ -30,6 +38,9 @@ public class GestorCoberturas : MonoBehaviour
         posicionNaranja = coberturaNaranja.transform.position;
         rotacionFrutilla = coberturaFrutilla.transform.rotation;
         rotacionNaranja = coberturaNaranja.transform.rotation;
+        posicionCrema = coberturaCrema.transform.position;
+        rotacionCrema = coberturaCrema.transform.rotation;
+
     }
 
     private void OnTriggerEnter(Collider otro)
@@ -53,6 +64,13 @@ public class GestorCoberturas : MonoBehaviour
             materialActual = materialNaranja;
             CoberturaActual = "Naranja";
         }
+
+        else if (recipiente == coberturaCrema)
+        {
+            materialActual = materialCrema;
+            CoberturaActual = "Crema";
+        }
+
         else
         {
             return;
@@ -65,6 +83,10 @@ public class GestorCoberturas : MonoBehaviour
             frutillaUsada = true;
         else if (recipiente == coberturaNaranja)
             naranjaUsada = true;
+
+        else if (recipiente == coberturaCrema)
+            cremaUsada = true;
+
     }
 
     private void Update()
@@ -119,12 +141,16 @@ public class GestorCoberturas : MonoBehaviour
     {
         coberturaFrutilla.selectExited.AddListener(SoltarFrutilla);
         coberturaNaranja.selectExited.AddListener(SoltarNaranja);
+        coberturaCrema.selectExited.AddListener(SoltarCrema);
+
     }
 
     private void OnDisable()
     {
         coberturaFrutilla.selectExited.RemoveListener(SoltarFrutilla);
         coberturaNaranja.selectExited.RemoveListener(SoltarNaranja);
+        coberturaCrema.selectExited.RemoveListener(SoltarCrema);
+
     }
 
     private void SoltarFrutilla(SelectExitEventArgs args)
@@ -144,6 +170,20 @@ public class GestorCoberturas : MonoBehaviour
         StartCoroutine(DevolverRecipiente(
             coberturaNaranja, posicionNaranja, rotacionNaranja));
     }
+
+    private void SoltarCrema(SelectExitEventArgs args)
+    {
+        if (!cremaUsada)
+            return;
+
+        cremaUsada = false;
+
+        StartCoroutine(DevolverRecipiente(
+            coberturaCrema,
+            posicionCrema,
+            rotacionCrema));
+    }
+
 
     private IEnumerator DevolverRecipiente(
         XRGrabInteractable recipiente, Vector3 posicion, Quaternion rotacion)

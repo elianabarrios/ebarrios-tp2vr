@@ -92,6 +92,13 @@ public class GestorComandas : MonoBehaviour
 
     public void EntregarPedido()
     {
+
+        if (pedidoValidado)
+        {
+            SiguienteComanda();
+            return;
+        }
+
         MostrarComanda();
 
         SaborBizcochuelo saborRequerido =
@@ -160,7 +167,10 @@ public class GestorComandas : MonoBehaviour
         }
 
         // Comprueba que se cumplan los requisitos 
-        textoComanda.text += "\n\n¡Pedido correcto!";
+
+        textoComanda.text +=
+            "\n\n¡Pedido correcto!\nPulsá ENTREGAR otra vez para continuar.";
+
 
         pedidoValidado = true;
 
