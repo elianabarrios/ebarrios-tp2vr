@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
-
+using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+
 
 
 public class GestorComandas : MonoBehaviour
@@ -16,6 +17,8 @@ public class GestorComandas : MonoBehaviour
     [SerializeField] private XRSocketInteractor socketSuperior;
 
     [SerializeField] private GestorCoberturas gestorCoberturas;
+
+    [SerializeField] private GestorPisos gestorPisos;
 
 
     [Header("Pedidos")]
@@ -49,8 +52,13 @@ public class GestorComandas : MonoBehaviour
     "Crema"
 };
 
+    private static int indiceComandaActual = 0;
 
-    private int indiceComandaActual = 0;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ReiniciarPartida()
+    {
+        indiceComandaActual = 0;
+    }
 
     private bool pedidoValidado = false;
 
@@ -62,6 +70,13 @@ public class GestorComandas : MonoBehaviour
 
     private void MostrarComanda()
     {
+
+        if (gestorPisos != null)
+        {
+            gestorPisos.ConfigurarPedidoDeDosPisos(
+                pisosRequeridos[indiceComandaActual] == 2);
+        }
+
         if (textoComanda == null)
         {
             Debug.LogWarning("Falta asignar TextoComanda.");
@@ -106,6 +121,36 @@ public class GestorComandas : MonoBehaviour
             return;
         }
 
+        // Verifica cantidad de pisos
+        if (cantidadPisos == 1 && socketSuperior != null &&
+            socketSuperior.hasSelection)
+        {
+            textoComanda.text += "\n\nEsta torta debe tener un solo piso.";
+            return;
+        }
+
+        if (cantidadPisos == 2)
+        {
+            if (socketSuperior == null || !socketSuperior.hasSelection)
+            {
+                textoComanda.text += "\n\nFalta colocar el segundo piso.";
+                return;
+            }
+
+            Transform objetoSuperior =
+                socketSuperior.interactablesSelected[0].transform;
+
+            Bizcochuelos bizcochueloSuperior =
+                objetoSuperior.GetComponent<Bizcochuelos>();
+
+            if (bizcochueloSuperior == null ||
+                bizcochueloSuperior.Sabor != saborRequerido)
+            {
+                textoComanda.text += "\n\nEl sabor del segundo piso es incorrecto.";
+                return;
+            }
+        }
+
         // Verifica cobertura
         if (gestorCoberturas == null ||
             gestorCoberturas.CoberturaActual != coberturaRequerida)
@@ -131,6 +176,7 @@ public class GestorComandas : MonoBehaviour
         indiceComandaActual++;
         pedidoValidado = false;
 
-        MostrarComanda();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
     }
 }

@@ -4355,7 +4355,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GestorComandas
   textoComanda: {fileID: 324278496}
   socketInferior: {fileID: 1644935936}
+  socketSuperior: {fileID: 692698284}
   gestorCoberturas: {fileID: 446609637}
+  gestorPisos: {fileID: 1127476188}
 --- !u!1 &1429936935
 GameObject:
   m_ObjectHideFlags: 0

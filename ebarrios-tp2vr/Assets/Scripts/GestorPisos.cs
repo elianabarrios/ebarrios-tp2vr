@@ -32,4 +32,8 @@ public class GestorPisos : MonoBehaviour
         }
 
     }
+    public void ConfigurarPedidoDeDosPisos(bool dosPisos)
+    {
+        pedidoDeDosPisos = dosPisos;
+    }
 }
