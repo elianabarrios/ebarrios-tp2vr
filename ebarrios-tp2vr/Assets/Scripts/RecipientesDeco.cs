@@ -6,7 +6,7 @@ public class RecipientesDeco : MonoBehaviour
     [Header("Deco disponible")]
     [SerializeField] private TipoDecoracion tipoDecoracion;
 
-    private void OnTriggerEnter(Collider otro)
+    private void OnTriggerStay(Collider otro)
     {
         GestorDecoraciones aplicador =
             otro.GetComponentInParent<GestorDecoraciones>();
@@ -18,6 +18,9 @@ public class RecipientesDeco : MonoBehaviour
             aplicador.GetComponent<XRGrabInteractable>();
 
         if (interactuable == null || !interactuable.isSelected)
+            return;
+
+        if (aplicador.DecoracionCargada == tipoDecoracion)
             return;
 
         aplicador.CargarDecoracion(tipoDecoracion);

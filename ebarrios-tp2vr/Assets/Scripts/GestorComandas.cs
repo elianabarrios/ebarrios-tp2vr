@@ -62,6 +62,9 @@ public class GestorComandas : MonoBehaviour
 
     private bool pedidoValidado = false;
 
+    private bool partidaTerminada = false;
+
+
 
     private void Start()
     {
@@ -92,6 +95,10 @@ public class GestorComandas : MonoBehaviour
 
     public void EntregarPedido()
     {
+
+
+        if (partidaTerminada)
+            return;
 
         if (pedidoValidado)
         {
@@ -166,6 +173,23 @@ public class GestorComandas : MonoBehaviour
             return;
         }
 
+
+        if (!ValidarCoberturaEnPisos())
+        {
+            textoComanda.text +=
+                "\n\nRevisá la cobertura de los pisos.";
+            return;
+        }
+
+
+        if (!ValidarDecoraciones())
+        {
+            textoComanda.text +=
+                "\n\nLa decoración no coincide con la receta.";
+            return;
+        }
+
+
         // Comprueba que se cumplan los requisitos 
 
         textoComanda.text +=
@@ -181,7 +205,17 @@ public class GestorComandas : MonoBehaviour
             return;
 
         if (indiceComandaActual >= nombresTortas.Length - 1)
+        {
+            partidaTerminada = true;
+
+            textoComanda.text =
+                "Tortas Ramón\n\n" +
+                "¡FELICITACIONES!\n\n" +
+                "Completaste las 3 comandas.\n" +
+                "¡Ganaste!";
+
             return;
+        }
 
         indiceComandaActual++;
         pedidoValidado = false;
@@ -189,4 +223,81 @@ public class GestorComandas : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
     }
+
+    private bool ValidarDecoraciones()
+    {
+        XRSocketInteractor socket =
+            socketSuperior != null && socketSuperior.hasSelection
+                ? socketSuperior
+                : socketInferior;
+
+        if (socket == null || !socket.hasSelection)
+            return false;
+
+        Transform bizcochuelo =
+            socket.interactablesSelected[0].transform;
+
+        bool tieneGranas =
+            bizcochuelo.Find("GranasVisual") != null;
+
+        bool tieneVelita =
+            bizcochuelo.Find("VelitaVisual") != null;
+
+        bool tieneDuraznos =
+            bizcochuelo.Find("DuraznosVisual") != null;
+
+        bool tieneCerezas =
+            bizcochuelo.Find("CerezasChocolateVisual") != null;
+
+        switch (indiceComandaActual)
+        {
+            case 0: // Cumpleaños
+                return (tieneGranas || tieneVelita)
+                    && !tieneDuraznos
+                    && !tieneCerezas;
+
+            case 1: // Crema y durazno
+                return tieneDuraznos
+                    && !tieneGranas
+                    && !tieneVelita
+                    && !tieneCerezas;
+
+            case 2: // Selva Negra
+                return tieneCerezas
+                    && !tieneGranas
+                    && !tieneVelita
+                    && !tieneDuraznos;
+
+            default:
+                return false;
+        }
+    }
+
+    private bool ValidarCoberturaEnPisos()
+    {
+        if (socketInferior == null || !socketInferior.hasSelection)
+            return false;
+
+        Transform pisoInferior =
+            socketInferior.interactablesSelected[0].transform;
+
+        if (pisoInferior.Find("CoberturaVisual") == null)
+            return false;
+
+        if (indiceComandaActual == 2)
+        {
+            if (socketSuperior == null || !socketSuperior.hasSelection)
+                return false;
+
+            Transform pisoSuperior =
+                socketSuperior.interactablesSelected[0].transform;
+
+            if (pisoSuperior.Find("CoberturaVisual") == null)
+                return false;
+        }
+
+        return true;
+    }
+
+
 }

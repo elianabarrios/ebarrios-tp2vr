@@ -28,10 +28,9 @@ public class GestorCoberturas : MonoBehaviour
     private Quaternion rotacionFrutilla, rotacionNaranja;
     private Vector3 posicionCrema;
     private Quaternion rotacionCrema;
-    private bool cremaUsada;
 
-    private bool frutillaUsada, naranjaUsada;
-
+    private bool frutillaUsada, naranjaUsada , cremaUsada;
+    private XRGrabInteractable ultimoRecipienteAplicado;
     private void Awake()
     {
         posicionFrutilla = coberturaFrutilla.transform.position;
@@ -43,13 +42,25 @@ public class GestorCoberturas : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter(Collider otro)
+    private void OnTriggerStay(Collider otro)
     {
         XRGrabInteractable recipiente =
             otro.GetComponentInParent<XRGrabInteractable>();
 
-        if (recipiente == null || !recipiente.isSelected)
+
+        if (recipiente == null) return;
+
+        if (!recipiente.isSelected)
+        {
+            if (ultimoRecipienteAplicado == recipiente)
+                ultimoRecipienteAplicado = null;
+
             return;
+        }
+
+        if (ultimoRecipienteAplicado == recipiente)
+            return;
+
 
         if (socketInferior == null || !socketInferior.hasSelection)
             return;
@@ -78,6 +89,7 @@ public class GestorCoberturas : MonoBehaviour
 
         AplicarEnSocket(socketInferior);
         AplicarEnSocket(socketSuperior);
+        ultimoRecipienteAplicado = recipiente;
 
         if (recipiente == coberturaFrutilla)
             frutillaUsada = true;
@@ -88,15 +100,7 @@ public class GestorCoberturas : MonoBehaviour
             cremaUsada = true;
 
     }
-
-    private void Update()
-    {
-        if (materialActual == null)
-            return;
-        AplicarEnSocket(socketInferior);
-        AplicarEnSocket(socketSuperior);
-    }
-
+    
     private void AplicarEnSocket(XRSocketInteractor socket)
     {
         if (socket == null || !socket.hasSelection)
@@ -200,4 +204,14 @@ public class GestorCoberturas : MonoBehaviour
         cuerpo.rotation = rotacion;
         cuerpo.isKinematic = false;
     }
+
+    private void OnTriggerExit(Collider otro)
+    {
+        XRGrabInteractable recipiente =
+            otro.GetComponentInParent<XRGrabInteractable>();
+
+        if (recipiente == ultimoRecipienteAplicado)
+            ultimoRecipienteAplicado = null;
+    }
+
 }
