@@ -214,4 +214,40 @@ public class GestorCoberturas : MonoBehaviour
             ultimoRecipienteAplicado = null;
     }
 
+    public bool TieneCobertura(Transform bizcochuelo, string tipoEsperado)
+    {
+        if (bizcochuelo == null)
+            return false;
+
+        Transform capa = bizcochuelo.Find("CoberturaVisual");
+
+        if (capa == null)
+            return false;
+
+        Renderer renderer = capa.GetComponent<Renderer>();
+
+        if (renderer == null)
+            return false;
+
+        Material materialEsperado = null;
+
+        switch (tipoEsperado)
+        {
+            case "Frutilla":
+                materialEsperado = materialFrutilla;
+                break;
+
+            case "Crema":
+                materialEsperado = materialCrema;
+                break;
+
+            case "Naranja":
+                materialEsperado = materialNaranja;
+                break;
+        }
+
+        return materialEsperado != null &&
+               renderer.sharedMaterial == materialEsperado;
+    }
+
 }

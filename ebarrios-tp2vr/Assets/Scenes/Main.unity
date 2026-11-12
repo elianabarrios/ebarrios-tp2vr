@@ -5164,6 +5164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GestorDecoraciones
   zonaAplicacion: {fileID: 385983717}
+  indicadorCarga: {fileID: 0}
   socketInferior: {fileID: 1644935936}
   socketSuperior: {fileID: 692698284}
   materialesGranas:
@@ -5577,6 +5578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GestorComandas
   textoComanda: {fileID: 324278496}
+  textoBotonEntregar: {fileID: 1825390948}
   socketInferior: {fileID: 1644935936}
   socketSuperior: {fileID: 692698284}
   gestorCoberturas: {fileID: 446609637}

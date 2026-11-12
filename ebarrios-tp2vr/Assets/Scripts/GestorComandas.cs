@@ -9,6 +9,7 @@ public class GestorComandas : MonoBehaviour
 {
     [Header("Interfaz")]
     [SerializeField] private TMP_Text textoComanda;
+    [SerializeField] private TMP_Text textoBotonEntregar;
 
 
     [Header("Preparación")]
@@ -98,7 +99,12 @@ public class GestorComandas : MonoBehaviour
 
 
         if (partidaTerminada)
+        {
+            indiceComandaActual = 0;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             return;
+        }
+
 
         if (pedidoValidado)
         {
@@ -165,14 +171,6 @@ public class GestorComandas : MonoBehaviour
             }
         }
 
-        // Verifica cobertura
-        if (gestorCoberturas == null ||
-            gestorCoberturas.CoberturaActual != coberturaRequerida)
-        {
-            textoComanda.text += "\n\nLa cobertura no coincide con la receta."; ;
-            return;
-        }
-
 
         if (!ValidarCoberturaEnPisos())
         {
@@ -197,6 +195,8 @@ public class GestorComandas : MonoBehaviour
 
 
         pedidoValidado = true;
+        if (textoBotonEntregar != null)
+            textoBotonEntregar.text = "Siguiente";
 
     }
     public void SiguienteComanda()
@@ -207,12 +207,15 @@ public class GestorComandas : MonoBehaviour
         if (indiceComandaActual >= nombresTortas.Length - 1)
         {
             partidaTerminada = true;
+            if (textoBotonEntregar != null)
+                textoBotonEntregar.text = "Reiniciar";
 
             textoComanda.text =
                 "Tortas Ramón\n\n" +
                 "¡FELICITACIONES!\n\n" +
                 "Completaste las 3 comandas.\n" +
-                "¡Ganaste!";
+                "¡Ganaste!\n\n" +
+                "Presioná Entregar para volver a jugar."; ;
 
             return;
         }
@@ -273,17 +276,29 @@ public class GestorComandas : MonoBehaviour
         }
     }
 
+
     private bool ValidarCoberturaEnPisos()
     {
+        if (gestorCoberturas == null)
+            return false;
+
         if (socketInferior == null || !socketInferior.hasSelection)
             return false;
+
+        // Cumpleaños lleva frutilla.
+        // Crema y durazno, y Selva Negra llevan crema.
+        string coberturaEsperada =
+            indiceComandaActual == 0 ? "Frutilla" : "Crema";
 
         Transform pisoInferior =
             socketInferior.interactablesSelected[0].transform;
 
-        if (pisoInferior.Find("CoberturaVisual") == null)
+        // Comprobar el material del primer piso.
+        if (!gestorCoberturas.TieneCobertura(
+            pisoInferior, coberturaEsperada))
             return false;
 
+        // Selva Negra necesita dos pisos con crema.
         if (indiceComandaActual == 2)
         {
             if (socketSuperior == null || !socketSuperior.hasSelection)
@@ -292,12 +307,14 @@ public class GestorComandas : MonoBehaviour
             Transform pisoSuperior =
                 socketSuperior.interactablesSelected[0].transform;
 
-            if (pisoSuperior.Find("CoberturaVisual") == null)
+            if (!gestorCoberturas.TieneCobertura(
+                pisoSuperior, coberturaEsperada))
                 return false;
         }
 
         return true;
     }
+
 
 
 }
