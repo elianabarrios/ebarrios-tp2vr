@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class GestorCoberturas : MonoBehaviour
@@ -18,6 +20,17 @@ public class GestorCoberturas : MonoBehaviour
     public string CoberturaActual { get; private set; } = "Ninguna";
 
     private Material materialActual;
+    private Vector3 posicionFrutilla, posicionNaranja;
+    private Quaternion rotacionFrutilla, rotacionNaranja;
+    private bool frutillaUsada, naranjaUsada;
+
+    private void Awake()
+    {
+        posicionFrutilla = coberturaFrutilla.transform.position;
+        posicionNaranja = coberturaNaranja.transform.position;
+        rotacionFrutilla = coberturaFrutilla.transform.rotation;
+        rotacionNaranja = coberturaNaranja.transform.rotation;
+    }
 
     private void OnTriggerEnter(Collider otro)
     {
@@ -47,6 +60,11 @@ public class GestorCoberturas : MonoBehaviour
 
         AplicarEnSocket(socketInferior);
         AplicarEnSocket(socketSuperior);
+
+        if (recipiente == coberturaFrutilla)
+            frutillaUsada = true;
+        else if (recipiente == coberturaNaranja)
+            naranjaUsada = true;
     }
 
     private void Update()
@@ -95,5 +113,51 @@ public class GestorCoberturas : MonoBehaviour
 
         if (renderer.sharedMaterial != materialActual)
             renderer.sharedMaterial = materialActual;
+    }
+
+    private void OnEnable()
+    {
+        coberturaFrutilla.selectExited.AddListener(SoltarFrutilla);
+        coberturaNaranja.selectExited.AddListener(SoltarNaranja);
+    }
+
+    private void OnDisable()
+    {
+        coberturaFrutilla.selectExited.RemoveListener(SoltarFrutilla);
+        coberturaNaranja.selectExited.RemoveListener(SoltarNaranja);
+    }
+
+    private void SoltarFrutilla(SelectExitEventArgs args)
+    {
+        if (!frutillaUsada) return;
+
+        frutillaUsada = false;
+        StartCoroutine(DevolverRecipiente(
+            coberturaFrutilla, posicionFrutilla, rotacionFrutilla));
+    }
+
+    private void SoltarNaranja(SelectExitEventArgs args)
+    {
+        if (!naranjaUsada) return;
+
+        naranjaUsada = false;
+        StartCoroutine(DevolverRecipiente(
+            coberturaNaranja, posicionNaranja, rotacionNaranja));
+    }
+
+    private IEnumerator DevolverRecipiente(
+        XRGrabInteractable recipiente, Vector3 posicion, Quaternion rotacion)
+    {
+        yield return null;
+
+        Rigidbody cuerpo = recipiente.GetComponent<Rigidbody>();
+        if (cuerpo == null) yield break;
+
+        cuerpo.isKinematic = true;
+        cuerpo.linearVelocity = Vector3.zero;
+        cuerpo.angularVelocity = Vector3.zero;
+        cuerpo.position = posicion;
+        cuerpo.rotation = rotacion;
+        cuerpo.isKinematic = false;
     }
 }

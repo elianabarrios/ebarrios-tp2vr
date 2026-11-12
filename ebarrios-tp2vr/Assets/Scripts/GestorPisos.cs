@@ -6,6 +6,7 @@ public class GestorPisos : MonoBehaviour
 {
     [SerializeField] private XRSocketInteractor socketInferior;
     [SerializeField] private XRSocketInteractor socketSuperior;
+    [SerializeField] private bool pedidoDeDosPisos = false;
 
     private void Awake()
     {
@@ -23,6 +24,12 @@ public class GestorPisos : MonoBehaviour
         // oCULTAR los sockets 
         socketInferior.showInteractableHoverMeshes = !socketInferior.hasSelection;
         socketSuperior.showInteractableHoverMeshes = socketInferior.hasSelection && !socketSuperior.hasSelection;
+
+        if (!pedidoDeDosPisos)
+        {
+            socketSuperior.socketActive = false;
+            socketSuperior.showInteractableHoverMeshes = false;
+        }
 
     }
 }
