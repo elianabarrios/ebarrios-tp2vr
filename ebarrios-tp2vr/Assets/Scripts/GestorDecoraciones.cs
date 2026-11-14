@@ -73,9 +73,6 @@ public class GestorDecoraciones : MonoBehaviour
 
             return;
 
-        if (indicadorCarga != null)
-            indicadorCarga.SetActive(false);
-
 
         XRSocketInteractor socket =
             socketSuperior != null && socketSuperior.hasSelection
@@ -91,7 +88,6 @@ public class GestorDecoraciones : MonoBehaviour
         Debug.Log(
             "Aplicando " + DecoracionCargada +
             " sobre " + bizcochuelo.name);
-        DecoracionCargada = TipoDecoracion.Ninguna;
 
         if (DecoracionCargada == TipoDecoracion.Granas)
         {
@@ -113,7 +109,10 @@ public class GestorDecoraciones : MonoBehaviour
             CrearCerezasYChocolate(bizcochuelo);
         }
 
+        DecoracionCargada = TipoDecoracion.Ninguna;
 
+        if (indicadorCarga != null)
+            indicadorCarga.SetActive(false);
 
 
     }

@@ -20,7 +20,7 @@ public class RecipientesDeco : MonoBehaviour
         if (interactuable == null || !interactuable.isSelected)
             return;
 
-        if (aplicador.DecoracionCargada == tipoDecoracion)
+        if (aplicador.DecoracionCargada != TipoDecoracion.Ninguna)
             return;
 
         aplicador.CargarDecoracion(tipoDecoracion);
