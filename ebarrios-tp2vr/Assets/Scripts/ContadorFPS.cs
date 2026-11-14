@@ -4,6 +4,8 @@ using TMPro;
 public class ContadorFPS : MonoBehaviour
 {
     private TMP_Text textoFPS;
+    [SerializeField] private TMP_Text textoEstadoAplicador;
+    [SerializeField] private GestorDecoraciones aplicador;
     private float tiempoAcumulado;
     private int fotogramas;
 
@@ -24,6 +26,14 @@ public class ContadorFPS : MonoBehaviour
         float fps = fotogramas / tiempoAcumulado;
 
         textoFPS.text = "FPS: " + Mathf.RoundToInt(fps);
+        if (textoEstadoAplicador != null && aplicador != null)
+        {
+            string decoracion = aplicador.DecoracionCargada.ToString();
+
+            textoEstadoAplicador.text = decoracion == "Ninguna"
+                ? "Aplicador: Sin decoración"
+                : "Aplicador: " + decoracion;
+        }
 
         tiempoAcumulado = 0f;
         fotogramas = 0;

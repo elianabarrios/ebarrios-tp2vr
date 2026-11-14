@@ -86,13 +86,21 @@ public class GestorComandas : MonoBehaviour
             Debug.LogWarning("Falta asignar TextoComanda.");
             return;
         }
+        ;
+
 
         textoComanda.text =
-            "Tortas Ramón\n" +
-            "COMANDA #" + (indiceComandaActual + 1).ToString("000") + "\n" +
-            nombresTortas[indiceComandaActual] + "\n" +
-            "Pedido para retirar";
+            "<size=65%>TORTAS RAMÓN</size>\n" +
+            "<size=60%>COMANDA N.º " +
+            (indiceComandaActual + 1).ToString("000") +
+            "</size>\n\n" +
+            "<b>" + nombresTortas[indiceComandaActual] + "</b>\n\n" +
+            "<size=60%>PARA RETIRAR</size>";
+
+
     }
+
+
 
     public void EntregarPedido()
     {
