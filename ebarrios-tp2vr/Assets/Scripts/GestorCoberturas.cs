@@ -159,7 +159,6 @@ public class GestorCoberturas : MonoBehaviour
 
     private void SoltarFrutilla(SelectExitEventArgs args)
     {
-        if (!frutillaUsada) return;
 
         frutillaUsada = false;
         StartCoroutine(DevolverRecipiente(
@@ -175,8 +174,6 @@ public class GestorCoberturas : MonoBehaviour
 
     private void SoltarCrema(SelectExitEventArgs args)
     {
-        if (!cremaUsada)
-            return;
 
         cremaUsada = false;
 
