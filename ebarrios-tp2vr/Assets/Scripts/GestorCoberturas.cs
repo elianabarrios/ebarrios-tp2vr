@@ -168,8 +168,6 @@ public class GestorCoberturas : MonoBehaviour
 
     private void SoltarNaranja(SelectExitEventArgs args)
     {
-        if (!naranjaUsada) return;
-
         naranjaUsada = false;
         StartCoroutine(DevolverRecipiente(
             coberturaNaranja, posicionNaranja, rotacionNaranja));
