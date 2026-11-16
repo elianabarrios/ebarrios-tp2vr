@@ -1,7 +1,10 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
+//Visual y config
 public enum TipoDecoracion
 {
     Ninguna,
@@ -11,295 +14,429 @@ public enum TipoDecoracion
     CerezasYChocolate
 }
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(XRGrabInteractable))]
 public class GestorDecoraciones : MonoBehaviour
 {
     public TipoDecoracion DecoracionCargada { get; private set; }
         = TipoDecoracion.Ninguna;
 
-
-    [Header("Zona de aplicación")]
+    [Header("Zona de aplicacion")]
     [SerializeField] private Collider zonaAplicacion;
 
-    [Header("Indicador visual")]
-    [SerializeField] private GameObject indicadorCarga;
-
-
-    [Header("Pisos de la torta")]
-    [SerializeField] private XRSocketInteractor socketInferior;
-    [SerializeField] private XRSocketInteractor socketSuperior;
-
-    [Header("Materiales de granas")]
-    [SerializeField] private Material[] materialesGranas = new Material[4];
-
-    [Header("Decoración de cumpleaños")]
-    [SerializeField] private GameObject prefabVelita;
-
-    [Header("Decoración de duraznos")]
+    [Header("Materiales")]
+    [SerializeField] private Material[] materialesGranas;
     [SerializeField] private Material materialDurazno;
-
-    [Header("Decoración de Selva Negra")]
     [SerializeField] private Material materialCereza;
     [SerializeField] private Material materialVirutas;
 
+    [Header("Indicador anterior")]
+    [SerializeField] private GameObject indicadorCarga;
 
+    [Header("Relleno visual de la cuchara")]
+    [SerializeField] private Transform cucharaVisual;
+    [SerializeField]
+    private Vector3 desplazamientoRelleno =
+        new Vector3(0f, 0.009f, 0f);
+    [SerializeField] private float escalaRelleno = 1f;
 
+    [Header("Alturas sobre el bizcochuelo")]
+    [SerializeField] private float alturaSuperficie = 1.16f;
+    [SerializeField] private float alturaCentroCerezas = 1.22f;
 
+    [Header("Retorno del aplicador")]
+    [SerializeField] private Transform puntoReposoAplicador;
+
+    [SerializeField, HideInInspector]
+    private GameObject prefabVelita;
+
+    private XRGrabInteractable agarreAplicador;
+    private Rigidbody cuerpoAplicador;
+    private Coroutine retornoActivo;
+
+    //Dependencias , recipientes, comandas y xrsockets
+
+    private GameObject visualGranas;
+    private GameObject visualDuraznos;
+    private GameObject visualCerezas;
+
+    [Header("Sockets de la torta")]
+    [SerializeField] private XRSocketInteractor socketInferior;
+    [SerializeField] private XRSocketInteractor socketSuperior;
+
+    private void Awake()
+    {
+        agarreAplicador = GetComponent<XRGrabInteractable>();
+        cuerpoAplicador = GetComponent<Rigidbody>();
+    }
+
+    private void OnEnable()
+    {
+        if (agarreAplicador == null) return;
+
+        agarreAplicador.selectEntered.AddListener(AlAgarrarAplicador);
+        agarreAplicador.selectExited.AddListener(AlSoltarAplicador);
+    }
+
+    private void OnDisable()
+    {
+        if (agarreAplicador != null)
+        {
+            agarreAplicador.selectEntered.RemoveListener(AlAgarrarAplicador);
+            agarreAplicador.selectExited.RemoveListener(AlSoltarAplicador);
+        }
+
+        if (retornoActivo != null)
+        {
+            StopCoroutine(retornoActivo);
+            retornoActivo = null;
+        }
+    }
+
+    private void Start()
+    {
+        CrearRellenosVisuales();
+        ActualizarRellenoVisual();
+        ColocarAplicadorEnBase();
+    }
 
 
     public void CargarDecoracion(TipoDecoracion decoracion)
     {
+        if (decoracion == TipoDecoracion.Velita)
+            return;
+
+        if (decoracion == TipoDecoracion.Ninguna)
+        {
+            VaciarCuchara();
+            return;
+        }
+
+        if (agarreAplicador == null || !agarreAplicador.isSelected)
+            return;
+
         DecoracionCargada = decoracion;
+        ActualizarRellenoVisual();
 
-        Debug.Log("Decoración cargada: " + decoracion);
+        Debug.Log("Decoracion cargada: " + decoracion);
+    }
 
+    private void VaciarCuchara()
+    {
+        DecoracionCargada = TipoDecoracion.Ninguna;
+        ActualizarRellenoVisual();
+    }
+
+    private void CrearRellenosVisuales()
+    {
+        if (cucharaVisual == null) {return;}
+
+        Transform raiz = new GameObject("RellenosCuchara_Runtime").transform;
+        raiz.SetParent(cucharaVisual, false);
+        raiz.localPosition = desplazamientoRelleno;
+        raiz.localScale = Vector3.one * escalaRelleno;
+
+        visualGranas = new GameObject("RellenoGranas");
+        visualGranas.transform.SetParent(raiz, false);
+
+        for (int i = 0; i < 12; i++)
+        {
+            float angulo = i * Mathf.PI * 2f / 12f;
+
+            CrearPieza(
+                visualGranas.transform,
+                PrimitiveType.Cube,
+                new Vector3(Mathf.Cos(angulo) * 0.02f,
+                            0f,
+                            Mathf.Sin(angulo) * 0.025f),
+                new Vector3(0.006f, 0.003f, 0.003f),
+                ObtenerMaterialGrana(i));
+        }
+        visualDuraznos = new GameObject("RellenoDuraznos");
+        visualDuraznos.transform.SetParent(raiz, false);
+
+        for (int i = 0; i < 3; i++)
+        {
+            CrearPieza(
+                visualDuraznos.transform,
+                PrimitiveType.Sphere,
+                new Vector3((i - 1) * 0.014f, 0f, i * 0.01f),
+                new Vector3(0.014f, 0.006f, 0.012f),
+                materialDurazno);
+        }
+        visualCerezas = new GameObject("RellenoCerezasChocolate");
+        visualCerezas.transform.SetParent(raiz, false);
+
+        CrearPieza(
+            visualCerezas.transform,
+            PrimitiveType.Sphere,
+            new Vector3(0f, 0.005f, 0f),
+            Vector3.one * 0.018f,
+            materialCereza);
+
+        for (int i = 0; i < 4; i++)
+        {
+            float angulo = i * Mathf.PI / 2f;
+
+            CrearPieza(
+                visualCerezas.transform,
+                PrimitiveType.Cube,
+                new Vector3(Mathf.Cos(angulo) * 0.017f,
+                            0f,
+                            Mathf.Sin(angulo) * 0.017f),
+                new Vector3(0.007f, 0.003f, 0.003f),
+                materialVirutas);
+        }
+    }
+
+    private void ActualizarRellenoVisual()
+    {
         if (indicadorCarga != null)
-            indicadorCarga.SetActive(true);
+            indicadorCarga.SetActive(false);
 
+        if (visualGranas != null)
+            visualGranas.SetActive(DecoracionCargada == TipoDecoracion.Granas);
+
+        if (visualDuraznos != null)
+            visualDuraznos.SetActive(DecoracionCargada == TipoDecoracion.Duraznos);
+
+        if (visualCerezas != null)
+            visualCerezas.SetActive(
+                DecoracionCargada == TipoDecoracion.CerezasYChocolate);
     }
 
 
     private void OnTriggerStay(Collider otro)
     {
-        if (otro != zonaAplicacion)
+        if (zonaAplicacion == null || otro != zonaAplicacion)
             return;
 
-        XRGrabInteractable agarre =
-            GetComponent<XRGrabInteractable>();
-
-        if (agarre == null || !agarre.isSelected)
+        if (agarreAplicador == null || !agarreAplicador.isSelected)
             return;
 
         if (DecoracionCargada == TipoDecoracion.Ninguna)
-
             return;
-
 
         XRSocketInteractor socket =
             socketSuperior != null && socketSuperior.hasSelection
-                ? socketSuperior
-                : socketInferior;
+                ? socketSuperior : socketInferior;
 
-        if (socket == null || !socket.hasSelection)
+        if (socket == null || !socket.hasSelection ||
+            socket.interactablesSelected.Count == 0)
             return;
 
         Transform bizcochuelo =
             socket.interactablesSelected[0].transform;
 
-        Debug.Log(
-            "Aplicando " + DecoracionCargada +
-            " sobre " + bizcochuelo.name);
+        bool aplicada = false;
 
-        if (DecoracionCargada == TipoDecoracion.Granas)
+        switch (DecoracionCargada)
         {
-            CrearGranas(bizcochuelo);
+            case TipoDecoracion.Granas:
+                aplicada = CrearGranas(bizcochuelo);
+                break;
+
+            case TipoDecoracion.Duraznos:
+                aplicada = CrearDuraznos(bizcochuelo);
+                break;
+
+            case TipoDecoracion.CerezasYChocolate:
+                aplicada = CrearCerezas(bizcochuelo);
+                break;
         }
 
-        else if (DecoracionCargada == TipoDecoracion.Velita)
-        {
-            CrearVelita(bizcochuelo);
-        }
-
-        else if (DecoracionCargada == TipoDecoracion.Duraznos)
-        {
-            CrearDuraznos(bizcochuelo);
-        }
-
-        else if (DecoracionCargada == TipoDecoracion.CerezasYChocolate)
-        {
-            CrearCerezasYChocolate(bizcochuelo);
-        }
-
-        DecoracionCargada = TipoDecoracion.Ninguna;
-
-        if (indicadorCarga != null)
-            indicadorCarga.SetActive(false);
-
-
+        if (aplicada)
+            VaciarCuchara();
     }
 
-    private void CrearGranas(Transform bizcochuelo)
+    private bool CrearGranas(Transform torta)
     {
-        if (bizcochuelo.Find("GranasVisual") != null)
-            return;
+        if (torta.Find("GranasVisual") != null ||
+            ObtenerMaterialGrana(0) == null)
+            return false;
 
-        if (materialesGranas == null || materialesGranas.Length == 0)
-            return;
-
-        GameObject contenedor = new GameObject("GranasVisual");
-        contenedor.transform.SetParent(bizcochuelo, false);
+        Transform grupo = new GameObject("GranasVisual").transform;
+        grupo.SetParent(torta, false);
 
         for (int i = 0; i < 16; i++)
         {
-            GameObject grana = GameObject.CreatePrimitive(
-                PrimitiveType.Cube);
+            Vector2 p = Random.insideUnitCircle * 0.38f;
 
-            grana.name = "Grana";
-            grana.transform.SetParent(contenedor.transform, false);
-
-            Vector2 punto = Random.insideUnitCircle * 0.38f;
-
-            grana.transform.localPosition =
-                new Vector3(punto.x, 1.16f, punto.y);
-
-            grana.transform.localScale =
-                new Vector3(0.06f, 0.05f, 0.025f);
-
-            grana.transform.localRotation = Quaternion.Euler(
-                0f, Random.Range(0f, 180f), 0f);
-
-            Renderer renderer = grana.GetComponent<Renderer>();
-            renderer.sharedMaterial =
-                materialesGranas[i % materialesGranas.Length];
-
-            Collider collider = grana.GetComponent<Collider>();
-            collider.enabled = false;
-            Destroy(collider);
-        }
-    }
-
-    private void CrearVelita(Transform bizcochuelo)
-    {
-        if (prefabVelita == null)
-        {
-            Debug.LogWarning("Falta asignar el prefab de la velita.");
-            return;
+            CrearPieza(grupo, PrimitiveType.Cube,
+                new Vector3(p.x, alturaSuperficie, p.y),
+                new Vector3(0.06f, 0.05f, 0.025f),
+                ObtenerMaterialGrana(i),
+                Random.Range(0f, 180f));
         }
 
-        if (bizcochuelo.Find("VelitaVisual") != null)
-            return;
-
-        Vector3 posicion = bizcochuelo.TransformPoint(
-            new Vector3(0f, 1.12f, 0f));
-
-        GameObject velita = Instantiate(
-            prefabVelita,
-            posicion,
-            Quaternion.identity);
-
-        velita.name = "VelitaVisual";
-
-        velita.transform.localScale = Vector3.one * 0.65f;
-
-        velita.transform.SetParent(bizcochuelo, true);
+        return true;
     }
 
-
-    private void CrearDuraznos(Transform bizcochuelo)
+    private bool CrearDuraznos(Transform torta)
     {
-        if (bizcochuelo.Find("DuraznosVisual") != null)
-            return;
+        if (torta.Find("DuraznosVisual") != null ||
+            materialDurazno == null)
+            return false;
 
-        if (materialDurazno == null)
-            return;
+        Transform grupo = new GameObject("DuraznosVisual").transform;
+        grupo.SetParent(torta, false);
 
-        GameObject contenedor = new GameObject("DuraznosVisual");
-        contenedor.transform.SetParent(bizcochuelo, false);
-
-        Vector3[] posiciones =
+        Vector2[] posiciones =
         {
-        new Vector3(-0.35f, 1.16f, 0.25f),
-        new Vector3(0.35f, 1.16f, 0.25f),
-        new Vector3(-0.35f, 1.16f, -0.25f),
-        new Vector3(0.35f, 1.16f, -0.25f)
-    };
+            new Vector2(-0.35f, 0.25f),
+            new Vector2(0.35f, 0.25f),
+            new Vector2(-0.35f, -0.25f),
+            new Vector2(0.35f, -0.25f)
+        };
 
         for (int i = 0; i < posiciones.Length; i++)
         {
-            GameObject durazno =
-                GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-            durazno.name = "GajitoDurazno";
-            durazno.transform.SetParent(contenedor.transform, false);
-
-            durazno.transform.localPosition = posiciones[i];
-            durazno.transform.localScale =
-                new Vector3(0.26f, 0.07f, 0.14f);
-
-            durazno.transform.localRotation =
-                Quaternion.Euler(0f, i * 45f, 0f);
-
-            durazno.GetComponent<Renderer>().sharedMaterial =
-                materialDurazno;
-
-            Collider collider = durazno.GetComponent<Collider>();
-            collider.enabled = false;
-            Destroy(collider);
+            CrearPieza(grupo, PrimitiveType.Sphere,
+                new Vector3(posiciones[i].x, alturaSuperficie, posiciones[i].y),
+                new Vector3(0.26f, 0.07f, 0.14f),
+                materialDurazno,
+                i * 45f);
         }
+
+        return true;
     }
 
-
-    private void CrearCerezasYChocolate(Transform bizcochuelo)
+    private bool CrearCerezas(Transform torta)
     {
+        if (torta.Find("CerezasChocolateVisual") != null ||
+            materialCereza == null || materialVirutas == null)
+            return false;
 
-        if (bizcochuelo.Find("CerezasChocolateVisual") != null)
-            return;
+        Transform grupo = new GameObject("CerezasChocolateVisual").transform;
+        grupo.SetParent(torta, false);
 
-        if (materialCereza == null || materialVirutas == null)
+        Vector2[] cerezas =
         {
-            Debug.LogWarning("Faltan materiales de Selva Negra.");
-            return;
+            new Vector2(-0.30f, 0.20f),
+            new Vector2(0.30f, 0.20f),
+            new Vector2(0f, -0.30f)
+        };
+
+        foreach (Vector2 p in cerezas)
+        {
+            CrearPieza(grupo, PrimitiveType.Sphere,
+                new Vector3(p.x, alturaCentroCerezas, p.y),
+                Vector3.one * 0.12f,
+                materialCereza);
         }
 
-        GameObject contenedor = new GameObject("CerezasChocolateVisual");
-        contenedor.transform.SetParent(bizcochuelo, false);
-
-        Vector3[] posicionesCerezas =
+        for (int i = 0; i < 5; i++)
         {
-        new Vector3(-0.30f, 1.56f, 0.20f),
-        new Vector3(0.30f, 1.56f, 0.20f),
-        new Vector3(0f, 1.56f, -0.30f)
-    };
+            Vector2 p = Random.insideUnitCircle * 0.40f;
 
-        foreach (Vector3 posicion in posicionesCerezas)
-        {
-            GameObject cereza =
-                GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-            cereza.name = "CerezaVisual";
-            cereza.transform.SetParent(contenedor.transform, false);
-            cereza.transform.localPosition = posicion;
-
-            cereza.transform.localScale =
-                new Vector3(0.12f, 0.8f, 0.12f);
-
-            cereza.GetComponent<Renderer>().sharedMaterial =
-                materialCereza;
-
-            Destroy(cereza.GetComponent<Collider>());
+            CrearPieza(grupo, PrimitiveType.Cube,
+                new Vector3(p.x, alturaSuperficie + 0.01f, p.y),
+                new Vector3(0.09f, 0.07f, 0.025f),
+                materialVirutas,
+                i * 35f);
         }
 
-        Vector3[] posicionesVirutas =
-        {
-        new Vector3(-0.40f, 1.17f, -0.10f),
-        new Vector3(0.35f, 1.17f, -0.30f),
-        new Vector3(0.10f, 1.17f, 0.40f),
-        new Vector3(-0.15f, 1.17f, 0.05f),
-        new Vector3(0.40f, 1.17f, 0.30f)
-    };
-
-        for (int i = 0; i < posicionesVirutas.Length; i++)
-        {
-            GameObject viruta =
-                GameObject.CreatePrimitive(PrimitiveType.Cube);
-
-            viruta.name = "VirutaChocolate";
-            viruta.transform.SetParent(contenedor.transform, false);
-
-            viruta.transform.localPosition = posicionesVirutas[i];
-            viruta.transform.localScale =
-                new Vector3(0.09f, 0.07f, 0.025f);
-
-            viruta.transform.localRotation =
-                Quaternion.Euler(0f, i * 35f, 0f);
-
-            viruta.GetComponent<Renderer>().sharedMaterial =
-                materialVirutas;
-
-            Destroy(viruta.GetComponent<Collider>());
-        }
+        return true;
     }
 
+    private Material ObtenerMaterialGrana(int indice)
+    {
+        if (materialesGranas == null || materialesGranas.Length == 0)
+            return null;
 
+        for (int i = 0; i < materialesGranas.Length; i++)
+        {
+            Material m = materialesGranas[
+                (indice + i) % materialesGranas.Length];
 
+            if (m != null)
+                return m;
+        }
 
+        return null;
+    }
+
+    private GameObject CrearPieza(
+        Transform padre,
+        PrimitiveType tipo,
+        Vector3 posicion,
+        Vector3 escala,
+        Material material,
+        float giroY = 0f)
+        {
+            GameObject pieza = GameObject.CreatePrimitive(tipo);
+            pieza.transform.SetParent(padre, false);
+            pieza.transform.localPosition = posicion;
+            pieza.transform.localScale = escala;
+            pieza.transform.localRotation = Quaternion.Euler(0f, giroY, 0f);
+
+            Renderer render = pieza.GetComponent<Renderer>();
+            if (render != null && material != null)
+                render.sharedMaterial = material;
+
+            Collider col = pieza.GetComponent<Collider>();
+            if (col != null)
+            {
+                col.enabled = false;
+                Destroy(col);
+            }
+
+            return pieza;
+        }
+    private void AlAgarrarAplicador(SelectEnterEventArgs args)
+    {
+        if (retornoActivo != null)
+        {
+            StopCoroutine(retornoActivo);
+            retornoActivo = null;
+        }
+
+        if (cuerpoAplicador == null)
+            return;
+
+        cuerpoAplicador.isKinematic = false;
+        cuerpoAplicador.useGravity = false;
+    }
+
+    private void AlSoltarAplicador(SelectExitEventArgs args)
+    {
+        if (args.isCanceled || agarreAplicador == null ||
+            agarreAplicador.isSelected)
+            return;
+        VaciarCuchara();
+        if (retornoActivo != null)
+            StopCoroutine(retornoActivo);
+
+        retornoActivo = StartCoroutine(DevolverAplicador());
+    }
+
+    private IEnumerator DevolverAplicador()
+    {
+        yield return new WaitForFixedUpdate();
+
+        if (agarreAplicador != null && !agarreAplicador.isSelected)
+            ColocarAplicadorEnBase();
+
+        retornoActivo = null;
+    }
+
+    private void ColocarAplicadorEnBase()
+    {
+        if (puntoReposoAplicador == null || cuerpoAplicador == null)
+            return;
+
+        if (!cuerpoAplicador.isKinematic)
+        {
+            cuerpoAplicador.linearVelocity = Vector3.zero;
+            cuerpoAplicador.angularVelocity = Vector3.zero;
+        }
+
+        cuerpoAplicador.isKinematic = true;
+        cuerpoAplicador.useGravity = false;
+
+        transform.SetPositionAndRotation(
+            puntoReposoAplicador.position,
+            puntoReposoAplicador.rotation);
+    }
+    
 }

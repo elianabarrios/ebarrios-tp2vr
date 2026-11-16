@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
+
 public class GestorPisos : MonoBehaviour
 {
     [SerializeField] private XRSocketInteractor socketInferior;
