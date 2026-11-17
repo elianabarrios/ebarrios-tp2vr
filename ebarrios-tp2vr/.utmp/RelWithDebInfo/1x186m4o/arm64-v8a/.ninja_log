@@ -1,10 +1,19 @@
 # ninja log v5
 48	4839	8162472604586136	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	54f402e634434f4b
+7322	7563	8162472632319893	C:/Users/Eliana/Documents/GitHub/EntornosVirtualesTP2-ExperienciaVR/ebarrios-tp2vr/ebarrios-tp2vr/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/1x186m4o/obj/arm64-v8a/libgame.so	a8b924220ef7ced8
 74	4948	8162472605639525	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	e996ec1c0e8e051d
+4961	7321	8162472629892702	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	a23cc4d767fb92c0
 1	4978	8162472606097331	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	6f672d0946a853fa
+4852	7031	8162472627014541	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	69c0f7759d7df7d
 21	5011	8162472606734694	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	e3f52a70582d257a
 60	5467	8162472611291177	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	2b51a09c33ed59ac
 35	5717	8162472613808731	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	83c2a3c1a245b9a1
-4852	7031	8162472627014541	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	69c0f7759d7df7d
-4961	7321	8162472629892702	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	a23cc4d767fb92c0
-7322	7563	8162472632319893	C:/Users/Eliana/Documents/GitHub/EntornosVirtualesTP2-ExperienciaVR/ebarrios-tp2vr/ebarrios-tp2vr/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/1x186m4o/obj/arm64-v8a/libgame.so	a8b924220ef7ced8
+138	12364	8166084637482089	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	e996ec1c0e8e051d
+106	12426	8166084640967226	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	6f672d0946a853fa
+158	12477	8166084641524489	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	e3f52a70582d257a
+226	13938	8166084655362678	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	2b51a09c33ed59ac
+174	14444	8166084660590695	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	a23cc4d767fb92c0
+88	14535	8166084661432731	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	83c2a3c1a245b9a1
+12367	16449	8166084681765978	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	54f402e634434f4b
+12427	16462	8166084681871865	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	69c0f7759d7df7d
+16462	17033	8166084687556724	C:/Users/Eliana/Documents/GitHub/EntornosVirtualesTP2-ExperienciaVR/ebarrios-tp2vr/ebarrios-tp2vr/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/1x186m4o/obj/arm64-v8a/libgame.so	a8b924220ef7ced8
