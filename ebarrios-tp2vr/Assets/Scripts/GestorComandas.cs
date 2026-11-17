@@ -10,6 +10,7 @@ public class GestorComandas : MonoBehaviour
     [Header("Interfaz")]
     [SerializeField] private TMP_Text textoComanda;
     [SerializeField] private TMP_Text textoBotonEntregar;
+    [SerializeField] private TMP_Text textoEstadoComanda;
 
 
     [Header("Preparación")]
@@ -21,6 +22,12 @@ public class GestorComandas : MonoBehaviour
 
     [SerializeField] private GestorPisos gestorPisos;
 
+
+    private void MostrarEstado(string mensaje)
+    {
+        if (textoEstadoComanda != null)
+            textoEstadoComanda.text = mensaje;
+    }
 
     [Header("Pedidos")]
     private string[] nombresTortas =
@@ -74,7 +81,7 @@ public class GestorComandas : MonoBehaviour
 
     private void MostrarComanda()
     {
-
+        MostrarEstado("");
         if (gestorPisos != null)
         {
             gestorPisos.ConfigurarPedidoDeDosPisos(
@@ -90,7 +97,7 @@ public class GestorComandas : MonoBehaviour
 
 
         textoComanda.text =
-            "<size=65%>TORTAS RAMÓN</size>\n" +
+            "<size=65%>Ramoncito: Tortitas a Domicilio</size>\n" +
             "<size=60%>COMANDA N.º " +
             (indiceComandaActual + 1).ToString("000") +
             "</size>\n\n" +
@@ -128,13 +135,10 @@ public class GestorComandas : MonoBehaviour
         int cantidadPisos =
             pisosRequeridos[indiceComandaActual];
 
-        string coberturaRequerida =
-            coberturasRequeridas[indiceComandaActual];
-
         // Chequea si hay un bizcochuelo
         if (socketInferior == null || !socketInferior.hasSelection)
         {
-            textoComanda.text += "\n\nFalta colocar el bizcochuelo.";
+            MostrarEstado("Falta colocar el bizcochuelo.");
             return;
         }
 
@@ -145,7 +149,7 @@ public class GestorComandas : MonoBehaviour
         if (bizcochuelo == null ||
             bizcochuelo.Sabor != saborRequerido)
         {
-            textoComanda.text += "\n\nEl sabor del primer piso es incorrecto.";
+            MostrarEstado("El sabor del primer piso es incorrecto.");
             return;
         }
 
@@ -153,7 +157,7 @@ public class GestorComandas : MonoBehaviour
         if (cantidadPisos == 1 && socketSuperior != null &&
             socketSuperior.hasSelection)
         {
-            textoComanda.text += "\n\nEsta torta debe tener un solo piso.";
+            MostrarEstado("Esta torta debe tener un solo piso.");
             return;
         }
 
@@ -161,7 +165,7 @@ public class GestorComandas : MonoBehaviour
         {
             if (socketSuperior == null || !socketSuperior.hasSelection)
             {
-                textoComanda.text += "\n\nFalta colocar el segundo piso.";
+                MostrarEstado("Falta colocar el segundo piso.");
                 return;
             }
 
@@ -174,7 +178,7 @@ public class GestorComandas : MonoBehaviour
             if (bizcochueloSuperior == null ||
                 bizcochueloSuperior.Sabor != saborRequerido)
             {
-                textoComanda.text += "\n\nEl sabor del segundo piso es incorrecto.";
+                MostrarEstado("El sabor del segundo piso es incorrecto.");
                 return;
             }
         }
@@ -182,24 +186,21 @@ public class GestorComandas : MonoBehaviour
 
         if (!ValidarCoberturaEnPisos())
         {
-            textoComanda.text +=
-                "\n\nRevisá la cobertura de los pisos.";
+            MostrarEstado("Revisá la cobertura de los pisos.");
             return;
         }
 
 
         if (!ValidarDecoraciones())
         {
-            textoComanda.text +=
-                "\n\nLa decoración no coincide con la receta.";
+            MostrarEstado("La decoración no coincide con la receta.");
             return;
         }
 
 
         // Comprueba que se cumplan los requisitos 
 
-        textoComanda.text +=
-            "\n\n¡Pedido correcto!\nPulsá ENTREGAR otra vez para continuar.";
+        MostrarEstado("¡Pedido correcto!\nPresioná Siguiente para continuar.");
 
 
         pedidoValidado = true;
@@ -215,15 +216,17 @@ public class GestorComandas : MonoBehaviour
         if (indiceComandaActual >= nombresTortas.Length - 1)
         {
             partidaTerminada = true;
+
             if (textoBotonEntregar != null)
                 textoBotonEntregar.text = "Reiniciar";
 
+            MostrarEstado("");
+
             textoComanda.text =
-                "Tortas Ramón\n\n" +
+                "Ramoncito: Tortitas a Domicilio\n\n" +
                 "¡FELICITACIONES!\n\n" +
                 "Completaste las 3 comandas.\n" +
-                "¡Ganaste!\n\n" +
-                "Presioná Entregar para volver a jugar."; ;
+                "¡Ganaste!";
 
             return;
         }

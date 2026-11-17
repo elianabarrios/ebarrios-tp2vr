@@ -1,0 +1,36 @@
+# Unity-importable diffuse materials. If URP converts to pink, assign URP/Lit materials.
+newmtl Madera
+Kd 0.6588 0.4667 0.3333
+Ka 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1
+illum 1
+
+newmtl Rosa
+Kd 0.9373 0.5804 0.6902
+Ka 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1
+illum 1
+
+newmtl Amarillo
+Kd 0.9765 0.8078 0.4471
+Ka 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1
+illum 1
+
+newmtl Lavanda
+Kd 0.7255 0.5843 0.7647
+Ka 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1
+illum 1
+
+newmtl Menta
+Kd 0.6588 0.8471 0.7294
+Ka 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1
+illum 1
+

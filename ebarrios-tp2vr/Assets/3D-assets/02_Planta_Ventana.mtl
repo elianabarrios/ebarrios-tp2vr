@@ -1,0 +1,85 @@
+# Tortas Ramon - low poly material colors (diffuse)
+newmtl LavandaMaceta
+Kd 0.7765 0.6275 0.7882
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl LavandaSombra
+Kd 0.6706 0.5137 0.7255
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl Lazo
+Kd 0.8392 0.5529 0.6627
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl LazoClaro
+Kd 0.9529 0.7255 0.7922
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl RosaRibete
+Kd 0.9569 0.7294 0.7725
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl Tallo
+Kd 0.4627 0.5804 0.2902
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl Tierra
+Kd 0.6078 0.4745 0.3647
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl Verde
+Kd 0.5686 0.6706 0.3451
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl VerdeClaro
+Kd 0.6980 0.7765 0.4235
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl VerdeOscuro
+Kd 0.4510 0.5686 0.2824
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl VerdeVentana
+Kd 0.6157 0.7255 0.3647
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
+newmtl VerdeVentanaClaro
+Kd 0.7412 0.8235 0.4784
+Ka 0.15 0.15 0.15
+Ks 0 0 0
+Ns 1
+illum 1
+
