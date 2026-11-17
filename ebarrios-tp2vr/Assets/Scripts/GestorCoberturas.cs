@@ -184,21 +184,36 @@ public class GestorCoberturas : MonoBehaviour
     }
 
 
+
     private IEnumerator DevolverRecipiente(
-        XRGrabInteractable recipiente, Vector3 posicion, Quaternion rotacion)
+        XRGrabInteractable recipiente,
+        Vector3 posicion,
+        Quaternion rotacion)
     {
-        yield return null;
+        yield return new WaitForFixedUpdate();
+
+        if (recipiente == null || recipiente.isSelected)
+            yield break;
 
         Rigidbody cuerpo = recipiente.GetComponent<Rigidbody>();
-        if (cuerpo == null) yield break;
+        if (cuerpo == null)
+            yield break;
+
+        if (!cuerpo.isKinematic)
+        {
+            cuerpo.linearVelocity = Vector3.zero;
+            cuerpo.angularVelocity = Vector3.zero;
+        }
 
         cuerpo.isKinematic = true;
-        cuerpo.linearVelocity = Vector3.zero;
-        cuerpo.angularVelocity = Vector3.zero;
-        cuerpo.position = posicion;
-        cuerpo.rotation = rotacion;
-        cuerpo.isKinematic = false;
+
+        // Restaurar posición y rotación originales.
+        recipiente.transform.SetPositionAndRotation(
+            posicion,
+            rotacion
+        );
     }
+
 
     private void OnTriggerExit(Collider otro)
     {

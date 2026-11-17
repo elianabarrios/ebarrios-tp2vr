@@ -258,7 +258,7 @@ public class GestorDecoraciones : MonoBehaviour
         Transform grupo = new GameObject("GranasVisual").transform;
         grupo.SetParent(torta, false);
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 32; i++)
         {
             Vector2 p = Random.insideUnitCircle * 0.38f;
 
@@ -281,13 +281,19 @@ public class GestorDecoraciones : MonoBehaviour
         Transform grupo = new GameObject("DuraznosVisual").transform;
         grupo.SetParent(torta, false);
 
+
         Vector2[] posiciones =
         {
-            new Vector2(-0.35f, 0.25f),
-            new Vector2(0.35f, 0.25f),
-            new Vector2(-0.35f, -0.25f),
-            new Vector2(0.35f, -0.25f)
+            new Vector2(0f, 0.40f),
+            new Vector2(0.28f, 0.28f),
+            new Vector2(0.40f, 0f),
+            new Vector2(0.28f, -0.28f),
+            new Vector2(0f, -0.40f),
+            new Vector2(-0.28f, -0.28f),
+            new Vector2(-0.40f, 0f),
+            new Vector2(-0.28f, 0.28f)
         };
+
 
         for (int i = 0; i < posiciones.Length; i++)
         {
@@ -301,43 +307,58 @@ public class GestorDecoraciones : MonoBehaviour
         return true;
     }
 
+
     private bool CrearCerezas(Transform torta)
     {
         if (torta.Find("CerezasChocolateVisual") != null ||
             materialCereza == null || materialVirutas == null)
             return false;
 
-        Transform grupo = new GameObject("CerezasChocolateVisual").transform;
+        Transform grupo =
+            new GameObject("CerezasChocolateVisual").transform;
+
         grupo.SetParent(torta, false);
 
-        Vector2[] cerezas =
+        for (int i = 0; i < 6; i++)
         {
-            new Vector2(-0.30f, 0.20f),
-            new Vector2(0.30f, 0.20f),
-            new Vector2(0f, -0.30f)
-        };
+            float angulo = i * Mathf.PI * 2f / 6f;
 
-        foreach (Vector2 p in cerezas)
-        {
-            CrearPieza(grupo, PrimitiveType.Sphere,
-                new Vector3(p.x, alturaCentroCerezas, p.y),
+            Vector3 posicion = new Vector3(
+                Mathf.Cos(angulo) * 0.32f,
+                alturaCentroCerezas,
+                Mathf.Sin(angulo) * 0.32f
+            );
+
+            CrearPieza(
+                grupo,
+                PrimitiveType.Sphere,
+                posicion,
                 Vector3.one * 0.12f,
-                materialCereza);
+                materialCereza
+            );
         }
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
-            Vector2 p = Random.insideUnitCircle * 0.40f;
+            Vector2 p = Random.insideUnitCircle * 0.27f;
 
-            CrearPieza(grupo, PrimitiveType.Cube,
-                new Vector3(p.x, alturaSuperficie + 0.01f, p.y),
+            CrearPieza(
+                grupo,
+                PrimitiveType.Cube,
+                new Vector3(
+                    p.x,
+                    alturaSuperficie + 0.01f,
+                    p.y
+                ),
                 new Vector3(0.09f, 0.07f, 0.025f),
                 materialVirutas,
-                i * 35f);
+                Random.Range(0f, 180f)
+            );
         }
 
         return true;
     }
+
 
     private Material ObtenerMaterialGrana(int indice)
     {
@@ -383,6 +404,7 @@ public class GestorDecoraciones : MonoBehaviour
 
             return pieza;
         }
+
     private void AlAgarrarAplicador(SelectEnterEventArgs args)
     {
         if (retornoActivo != null)
@@ -391,12 +413,10 @@ public class GestorDecoraciones : MonoBehaviour
             retornoActivo = null;
         }
 
-        if (cuerpoAplicador == null)
-            return;
-
-        cuerpoAplicador.isKinematic = false;
-        cuerpoAplicador.useGravity = false;
+        if (cuerpoAplicador != null)
+            cuerpoAplicador.useGravity = false;
     }
+
 
     private void AlSoltarAplicador(SelectExitEventArgs args)
     {
